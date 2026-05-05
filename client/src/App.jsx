@@ -1,77 +1,53 @@
-import React, { useEffect, useState } from "react";
-import { dummyDashboardData } from "./assets/assets";
+import Home from "./pages/Home";
+import Movies from "./pages/Movies";
+import MovieDetails from "./pages/MovieDetails";
+import SeatLayout from "./pages/SeatLayout";
+import MyBookings from "./pages/MyBookings";
+import Favorite from "./pages/Favorite";
 
-const Dashboard = () => {
-  const currency = import.meta.env.VITE_CURRENCY;
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 
-  const [dashboardData, setDashboardData] = useState({
-    totalBookings: 0,
-    totalRevenue: 0,
-    activeShows: [],
-    totalUser: 0,
-  });
+import { Routes, Route, useLocation } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 
-  const [loading, setLoading] = useState(true);
+import Dashboard from "./pages/admin/Dashboard";
+import ListShows from "./pages/admin/ListShows";
+import AddShows from "./pages/admin/AddShows";
+import ListBookings from "./pages/admin/ListBookings";
+import Layout from "./pages/admin/Layout";
 
-  const dashboardCards = [
-    {
-      title: "Total Bookings",
-      value: dashboardData.totalBookings || "0",
-      icon: ChartLineIcon,
-    },
-    {
-      title: "Total Revenue",
-      value: dashboardData.totalRevenue || "0",
-      icon: CircleDollarSignIcon,
-    },
-    {
-      title: "Active Shows",
-      value: dashboardData.activeShows.length || "0",
-      icon: PlayCircleIcon,
-    },
-    {
-      title: "Total Users",
-      value: dashboardData.totalUser || "0",
-      icon: UsersIcon,
-    },
-  ];
+const App = () => {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith("/admin");
 
-  const fetchDashboardData = async () => {
-    setDashboardData(dummyDashboardData);
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  return !loading ? (
+  return (
     <>
-      <Title text1="Admin" text2="Dashboard" />
+      <Toaster />
 
-      <div className="relative flex flex-wrap gap-4 mt-6">
-        <BlurCircle top="-100px" left="0" />
+      {!isAdminRoute && <Navbar />}
 
-        <div className="flex flex-wrap gap-4 w-full">
-          {dashboardCards.map((card, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between px-4 py-3 bg-primary/10 border border-primary/20 rounded-md w-[220px]"
-            >
-              <div>
-                <h1 className="text-sm">{card.title}</h1>
-                <p className="text-xl font-medium mt-1">{card.value}</p>
-              </div>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<Home />} />
+        <Route path="/movies" element={<Movies />} />
+        <Route path="/movies/:id" element={<MovieDetails />} />
+        <Route path="/movies/:id/:date" element={<SeatLayout />} />
+        <Route path="/my-bookings" element={<MyBookings />} />
+        <Route path="/favorite" element={<Favorite />} />
 
-              <card.icon className="w-6 h-6" />
-            </div>
-          ))}
-        </div>
-      </div>
+        {/* Admin Routes */}
+        <Route path="/admin/*" element={<Layout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="add-shows" element={<AddShows />} />
+          <Route path="list-shows" element={<ListShows />} />
+          <Route path="list-bookings" element={<ListBookings />} />
+        </Route>
+      </Routes>
+
+      {!isAdminRoute && <Footer />}
     </>
-  ) : (
-    <Loading />
   );
 };
 
-export default Dashboard;
+export default App;
